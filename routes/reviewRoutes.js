@@ -4,9 +4,9 @@ import {
     updateReview, 
     deleteReview, 
     getReviewsByMovie, 
-    likeReview, 
-    dislikeReview, 
-    reportReview
+    // likeReview, 
+    // dislikeReview, 
+    // reportReview
     
 } from '../controllers/reviewController.js';
 import { userAuth } from '../middleware/userAuthMiddleware.js';
@@ -21,9 +21,9 @@ router.get('/:movieId', getReviewsByMovie);
 router.post('/:movieId', userAuth, addReview); 
 router.put('/:reviewId', userAuth, updateReview);
 router.delete('/:reviewId', userAuth, deleteReview); 
-router.post('/:reviewId/like', userAuth, likeReview); 
-router.post('/:reviewId/dislike', userAuth, dislikeReview); 
-router.post('/:reviewId/report', userAuth, reportReview); 
+// router.post('/:reviewId/like', userAuth, likeReview); 
+// router.post('/:reviewId/dislike', userAuth, dislikeReview); 
+// router.post('/:reviewId/report', userAuth, reportReview); 
 
 //  Admin Routes (Only admins)
 router.delete('/:reviewId/admin', adminAuth,  deleteReview); 

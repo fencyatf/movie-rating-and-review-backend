@@ -1,6 +1,7 @@
 import { Genre } from "../models/genreModel.js";
 import { Movie } from "../models/movieModel.js";
 
+
 // Create a new movie (Admin only)
 export const addMovie = async (req, res, next) => {
     try {
@@ -8,18 +9,11 @@ export const addMovie = async (req, res, next) => {
             title, genre, releaseDate, director, duration, description, posterUrl } = req.body;
 
         // Ensure genre is an array and convert names to ObjectIds
-        if (!Array.isArray(genre)) {
-            return res.status(400).json({ message: "Genre must be an array" });
+        if (!Array.isArray(genre) || genre.some(id => typeof id !== "string")) {
+            return res.status(400).json({ message: "Genre must be an array of ObjectIds" });
         }
 
-        // Convert genre names to ObjectIds
-        const genreIds = await Genre.find({ name: { $in: genre } }).select("_id");
 
-        // If any genre is missing, return an error
-        if (genreIds.length !== genre.length) {
-            return res.status(400).json({ message: "One or more genres not found" });
-        }
-        
         // Check if the movie already exists
         const existingMovie = await Movie.findOne({ title });
         if (existingMovie) {
@@ -28,7 +22,7 @@ export const addMovie = async (req, res, next) => {
 
         const newMovie = new Movie({
             title,
-            genre: genreIds.map(g => g._id),
+            genre,
             releaseDate,
             director,
             duration,
@@ -47,7 +41,7 @@ export const addMovie = async (req, res, next) => {
 // Get all movies
 export const getAllMovies = async (req, res, next) => {
     try {
-        const movies = await Movie.find({}).populate("genre", "name").select("title posterUrl averageRating ratingCount description genre").sort("-createdAt");
+        const movies = await Movie.find({}).populate("genre", "name").select("title genre releaseDate director duration description posterUrl averageRating ratingCount  ").sort("-createdAt");
         res.json(movies);
     } catch (error) {
         next(error);
@@ -78,17 +72,34 @@ export const updateMovie = async (req, res, next) => {
             return next(new Error("Movie not found"));
         }
 
+        // Convert genre names to ObjectIds if the genre field is provided
+        let genreIds = movie.genre; // Keep existing genres if not updated
+        if (req.body.genre) {
+            if (!Array.isArray(req.body.genre)) {
+                return next(new Error("Invalid genre format. Expected an array."));
+            }
+
+            const genres = await Genre.find({ _id: { $in: req.body.genre } });
+
+            if (genres.length !== req.body.genre.length) {
+                return next(new Error("One or more genres do not exist"));
+            }
+
+            genreIds = genres.map(genre => genre._id);
+        }
+
+        // Update movie fields
         movie.title = req.body.title || movie.title;
-        movie.genre = req.body.genre || movie.genre;
+        movie.genre = genreIds;
         movie.releaseDate = req.body.releaseDate || movie.releaseDate;
         movie.director = req.body.director || movie.director;
         movie.duration = req.body.duration || movie.duration;
         movie.description = req.body.description || movie.description;
         movie.posterUrl = req.body.posterUrl || movie.posterUrl;
-        movie.trailerUrl = req.body.trailerUrl || movie.trailerUrl;
 
 
         const updatedMovie = await movie.save();
+
         res.json(updatedMovie);
     } catch (error) {
         next(error);
@@ -156,4 +167,3 @@ export const filterMoviesByGenre = async (req, res, next) => {
         next(error);
     }
 };
-
