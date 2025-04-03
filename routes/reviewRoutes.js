@@ -3,7 +3,8 @@ import {
     addReview, 
     updateReview, 
     deleteReview, 
-    getReviewsByMovie, 
+    getReviewsByMovie,
+    getUserReviews, 
     // likeReview, 
     // dislikeReview, 
     // reportReview
@@ -14,10 +15,14 @@ import { adminAuth } from '../middleware/adminAuthMiddleware.js';
 
 const router = express.Router();
 
+
+
+//  User Routes (Only logged-in users)
+router.get('/user', userAuth, getUserReviews);
+
 //  Public Routes (Accessible by all users)
 router.get('/:movieId', getReviewsByMovie); 
 
-//  User Routes (Only logged-in users)
 router.post('/:movieId', userAuth, addReview); 
 router.put('/:reviewId', userAuth, updateReview);
 router.delete('/:reviewId', userAuth, deleteReview); 

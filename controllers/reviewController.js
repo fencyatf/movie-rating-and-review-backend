@@ -5,42 +5,48 @@ import mongoose from "mongoose";
 
 // Add a Review
 export const addReview = async (req, res, next) => {
-        try {
-            const movieId = req.params.movieId;
-            const userId = req.user.id;
-            const { rating, review } = req.body;
-    
-            console.log("Received data:", { movieId, userId, rating, review });
-    
-            const movie = await Movie.findById(movieId);
-            if (!movie) {
-                return next(new Error("Movie not found"));
-            }
-    
-            const newReview = new Review({
-                userId,
-                movieId,
-                rating,
-                review,
-                createdAt: new Date(),
-            });
-    
-            await newReview.save();
-            console.log("Successfully saved in DB:", newReview);
+    try {
+        const movieId = req.params.movieId;
+        const userId = req.user.id;
+        const { rating, review } = req.body;
 
-    
-            // Update movie rating
-            const allReviews = await Review.find({ movieId });
-            const totalRatingsSum = allReviews.reduce((sum, currentReview) => sum + currentReview.rating, 0);
-            movie.averageRating = totalRatingsSum / allReviews.length;
-            movie.ratingCount = allReviews.length;
-            await movie.save();
-    
-            res.status(201).json({ message: "Review added successfully", review: newReview });
-        } catch (error) {
-            next(error);
+        console.log("Received data:", { movieId, userId, rating, review });
+
+        const movie = await Movie.findById(movieId);
+        if (!movie) {
+            return next(new Error("Movie not found"));
         }
+
+        // Check if the user has already reviewed the movie
+        const existingReview = await Review.findOne({ userId, movieId });
+        if (existingReview) {
+            return res.status(400).json({ message: "You have already reviewed this movie." });
+        }
+
+        const newReview = new Review({
+            userId,
+            movieId,
+            rating,
+            review,
+            createdAt: new Date(),
+        });
+
+        await newReview.save();
+        console.log("Successfully saved in DB:", newReview);
+
+
+        // Update movie rating
+        const allReviews = await Review.find({ movieId });
+        const totalRatingsSum = allReviews.reduce((sum, currentReview) => sum + currentReview.rating, 0);
+        movie.averageRating = totalRatingsSum / allReviews.length;
+        movie.ratingCount = allReviews.length;
+        await movie.save();
+
+        res.status(201).json({ message: "Review added successfully", review: newReview });
+    } catch (error) {
+        next(error);
     }
+}
 
 
 // Update a Review
@@ -53,7 +59,7 @@ export const updateReview = async (req, res, next) => {
         if (!req.user || !req.user.id) {
             return res.status(401).json({ message: "User not authenticated" });
         }
-        
+
 
         const existingReview = await Review.findOne({ _id: reviewId, userId });
         if (!existingReview) {
@@ -227,7 +233,12 @@ export const getReviewsByMovie = async (req, res, next) => {
 
 export const getUserReviews = async (req, res, next) => {
     try {
-        const userId = req.user.id;  // Get logged-in user's ID
+        const userId = req.user?.id;  // Ensure userId exists
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized: User not authenticated" });
+        }
+        
+        console.log("Fetching reviews for user:", userId);
 
         const reviews = await Review.find({ userId })
             .populate("movieId", "title")  // Populate movie title
@@ -238,3 +249,4 @@ export const getUserReviews = async (req, res, next) => {
         next(error);
     }
 };
+

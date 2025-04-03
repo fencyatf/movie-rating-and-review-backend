@@ -26,6 +26,10 @@ export const userAuth = async (req, res, next) => {
         next();
     } catch (error) {
         console.error("JWT Error:", error);
-        res.status(401).json({ message: "Not authorized, token failed" });
+        if (error.name === "TokenExpiredError") {
+            return res.status(401).json({ message: "Token expired, please log in again" });
+        } else {
+            return res.status(401).json({ message: "Not authorized, invalid token" });
+        }
     }
 };
