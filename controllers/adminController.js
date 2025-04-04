@@ -81,6 +81,7 @@ export const banUser = async (req, res, next) => {
         }
 
         user.isBanned = true;
+        user.isActive = false; //  Ensure the user can't log in
         await user.save();
         res.json({ message: "User has been banned" });
     } catch (error) {
@@ -97,6 +98,7 @@ export const unbanUser = async (req, res, next) => {
         }
 
         user.isBanned = false;
+        user.isActive = true; // Allow the user to log in again
         await user.save();
         res.json({ message: "User has been unbanned" });
     } catch (error) {

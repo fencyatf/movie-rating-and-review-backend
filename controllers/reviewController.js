@@ -44,6 +44,7 @@ export const addReview = async (req, res, next) => {
 
         res.status(201).json({ message: "Review added successfully", review: newReview });
     } catch (error) {
+        console.error("Error saving review:", error.message);
         next(error);
     }
 }

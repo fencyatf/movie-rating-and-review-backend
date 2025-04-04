@@ -33,6 +33,10 @@ const userSchema = new Schema(
             type: Boolean,
             default: true,
         },
+        isBanned: {
+            type: Boolean,
+            default: false,
+        },
         resetToken: {
             type: String,
         },
