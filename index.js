@@ -18,6 +18,13 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
 
+// Handle Preflight requests globally
+app.options("*", cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
