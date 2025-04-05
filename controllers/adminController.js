@@ -31,7 +31,8 @@ export const adminLogin = async (req, res, next) => {
         // Store Token in HTTP-only Cookie
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true
+            secure: true,
+            sameSite: "none"
         });
 
         res.status(200).json({
