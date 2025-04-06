@@ -51,7 +51,8 @@ export const loginUser = async (req, res, next) => {
         const token = generateToken(user._id)
         res.cookie('token', token, {
             httpOnly: true,
-            secure: true
+            secure: true,
+            sameSite: "none"
         })
 
         //Convert Mongoose document to plain object before deleting password
