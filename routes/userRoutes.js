@@ -12,13 +12,8 @@ import {
     checkUser
 } from '../controllers/userController.js';
 import { userAuth } from '../middleware/userAuthMiddleware.js';
-// import { 
-//     addToWatchlist, 
-//     getWatchlist, 
-//     removeFromWatchlist 
-// } from '../controllers/watchlistController.js';
 import { getUserReviews } from '../controllers/reviewController.js';
-import { getUserReactions } from '../controllers/reactionController.js';
+//import { getUserReactions } from '../controllers/reactionController.js';
 import {upload} from "../middleware/multer.js"
 
 const router = express.Router();
@@ -44,8 +39,6 @@ router.post('/reset-password', resetPassword);
 
 //  User Activity (Reviews & Reactions)
 router.get('/reviews', userAuth, getUserReviews);
-router.get('/reactions', userAuth, getUserReactions);
-
 
 
 // Checking User

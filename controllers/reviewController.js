@@ -113,6 +113,13 @@ export const getReviewsByMovie = async (req, res, next) => {
             return res.status(400).json({ message: "Invalid movie ID format" });
         }
 
+        const reviews = await Review.find({ movieId })
+            .populate("userId", "name profile_pic")
+            .exec();
+
+        console.log("Fetched reviews:", reviews);
+
+        res.status(200).json({ message: "Reviews fetched successfully", reviews });
 
         console.log("Checking if movie exists...");
         const movie = await Movie.findById(movieId);
@@ -121,13 +128,7 @@ export const getReviewsByMovie = async (req, res, next) => {
         }
 
         console.log("Movie found, fetching reviews...");
-        const reviews = await Review.find({ movieId: new mongoose.Types.ObjectId(movieId) })
-            .populate("userId", "name profile_pic")
-            .exec();
 
-        console.log("Fetched reviews:", reviews);
-
-        res.status(200).json({ message: "Reviews fetched successfully", reviews });
     } catch (error) {
         console.error("Error fetching reviews:", error.stack);
         res.status(500).json({ message: "Internal server error", error: error.message });
@@ -238,11 +239,11 @@ export const getUserReviews = async (req, res, next) => {
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized: User not authenticated" });
         }
-        
+
         console.log("Fetching reviews for user:", userId);
 
         const reviews = await Review.find({ userId })
-            .populate("movieId", "title")  // Populate movie title
+            .populate("movieId", "title")  
             .sort({ createdAt: -1 });
 
         res.status(200).json({ message: "User reviews fetched successfully", reviews });
@@ -251,3 +252,15 @@ export const getUserReviews = async (req, res, next) => {
     }
 };
 
+// Get all reviews
+export const getAllReviews = async (req, res, next) => {
+    try {
+        const reviews = await Review.find()
+        .populate("userId", "name") 
+        .populate("movieId", "title")
+        .sort({ createdAt: -1 });
+        res.json(reviews);
+    } catch (error) {
+        next(error);
+    }
+};

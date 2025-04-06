@@ -23,13 +23,6 @@ const reviewSchema = new Schema(
             trim:true,
             required: true 
         },
-        reports: [
-            {
-                userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-                reason: { type: String, required: true },
-                reportedAt: { type: Date, default: Date.now }
-            }
-        ] 
     },
     {
         timestamps: true

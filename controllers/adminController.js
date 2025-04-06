@@ -2,7 +2,7 @@ import { Admin } from "../models/adminModel.js";
 import { User } from "../models/userModel.js";
 import { Movie } from "../models/movieModel.js";
 import { Review } from "../models/reviewModel.js";
-import { Report } from "../models/reportModel.js";
+// import { Report } from "../models/reportModel.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/token.js";
 
@@ -137,16 +137,6 @@ export const getAllMovies = async (req, res, next) => {
 };
 
 
-
-// Get all reviews
-// export const getAllReviews = async (req, res, next) => {
-//     try {
-//         const reviews = await Review.find().sort({createdAt:-1});
-//         res.json(reviews);
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 
 
 

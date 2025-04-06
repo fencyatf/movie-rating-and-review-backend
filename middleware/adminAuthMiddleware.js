@@ -23,6 +23,11 @@ export const adminAuth = async (req, res, next) => {
             return res.status(401).json({ message: "Admin not found" });
         }
 
+        req.user = { 
+            id: req.admin._id, 
+            role: "admin" 
+         };
+
         next();
     } catch (error) {
         console.error("JWT Error:", error.message);

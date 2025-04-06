@@ -29,9 +29,6 @@ const movieSchema = new Schema(
         posterUrl: { 
             type: String 
         },
-        // trailerUrl: { 
-        //     type: String 
-        // },
         averageRating: { 
             type: Number, 
             default: 0 
