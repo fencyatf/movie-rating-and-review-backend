@@ -2,14 +2,14 @@ import mongoose, { Schema } from "mongoose";
 
 const reviewSchema = new Schema(
     {
-        userId: { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: "User", 
-            required: true 
-        },
         movieId: { 
             type: mongoose.Schema.Types.ObjectId, 
             ref: "Movie", 
+            required: true 
+        },
+        userId: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: "User", 
             required: true 
         },
         rating: { 

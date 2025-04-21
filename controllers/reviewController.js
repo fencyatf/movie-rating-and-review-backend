@@ -18,7 +18,7 @@ export const addReview = async (req, res, next) => {
         }
 
         // Check if the user has already reviewed the movie
-        const existingReview = await Review.findOne({ userId, movieId });
+        const existingReview = await Review.findOne({ movieId, userId });
         if (existingReview) {
             return res.status(400).json({ message: "You have already reviewed this movie." });
         }
@@ -28,7 +28,7 @@ export const addReview = async (req, res, next) => {
             movieId,
             rating,
             review,
-            createdAt: new Date(),
+            //createdAt: new Date(),
         });
 
         await newReview.save();
@@ -36,11 +36,20 @@ export const addReview = async (req, res, next) => {
 
 
         // Update movie rating
-        const allReviews = await Review.find({ movieId });
-        const totalRatingsSum = allReviews.reduce((sum, currentReview) => sum + currentReview.rating, 0);
-        movie.averageRating = totalRatingsSum / allReviews.length;
-        movie.ratingCount = allReviews.length;
-        await movie.save();
+        // const allReviews = await Review.find({ movieId });
+        // const totalRatingsSum = allReviews.reduce((sum, currentReview) => sum + currentReview.rating, 0);
+        // movie.averageRating = totalRatingsSum / allReviews.length;
+        // movie.ratingCount = allReviews.length;
+        // await movie.save();
+
+        const reviews = await Review.find({ movieId });
+        const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
+        const averageRating = totalRating / reviews.length;
+
+        await Movie.findByIdAndUpdate(movieId, {
+            averageRating,
+            ratingCount: reviews.length,
+        });
 
         res.status(201).json({ message: "Review added successfully", review: newReview });
     } catch (error) {
@@ -243,7 +252,7 @@ export const getUserReviews = async (req, res, next) => {
         console.log("Fetching reviews for user:", userId);
 
         const reviews = await Review.find({ userId })
-            .populate("movieId", "title")  
+            .populate("movieId", "title")
             .sort({ createdAt: -1 });
 
         res.status(200).json({ message: "User reviews fetched successfully", reviews });
@@ -256,9 +265,9 @@ export const getUserReviews = async (req, res, next) => {
 export const getAllReviews = async (req, res, next) => {
     try {
         const reviews = await Review.find()
-        .populate("userId", "name") 
-        .populate("movieId", "title")
-        .sort({ createdAt: -1 });
+            .populate("userId", "name")
+            .populate("movieId", "title")
+            .sort({ createdAt: -1 });
         res.json(reviews);
     } catch (error) {
         next(error);
